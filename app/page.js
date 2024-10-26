@@ -3,16 +3,16 @@ import { signIn, useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 export default function AuthPage() {
-  const { data: session, status } = useSession(); // Fetch session details
+  const { data: session, status } = useSession(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
-  const [isSignUp, setIsSignUp] = useState(false); // Toggle between Sign In and Sign Up
+  const [isSignUp, setIsSignUp] = useState(false); 
 
-  const [items, setItems] = useState([]); // Items list (for CRUD operations)
-  const [newItem, setNewItem] = useState(''); // New item to add
-  const [isEditing, setIsEditing] = useState(null); // Track editing state
-  const [editedItem, setEditedItem] = useState(''); // Edited item text
+  const [items, setItems] = useState([]); 
+  const [newItem, setNewItem] = useState(''); 
+  const [isEditing, setIsEditing] = useState(null); 
+  const [editedItem, setEditedItem] = useState(''); 
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -53,93 +53,200 @@ export default function AuthPage() {
     setIsEditing(null);
   };
 
-  // Show a loading state while session is being checked
   if (status === 'loading') {
     return <p>Loading...</p>;
   }
 
-  // If the session is active, show the CRUD operations, otherwise show the auth form
   return (
-    <div>
-      {!session ? (
-        <>
-          <h1>{isSignUp ? 'Sign Up' : 'Sign In'}</h1>
+    <div style={styles.pageWrapper}>
+      <div style={styles.formWrapper}>
+        {!session ? (
+          <>
+            <h1 style={styles.title}>{isSignUp ? 'Sign Up' : 'Sign In'}</h1>
 
-          <form onSubmit={handleAuth}>
-            <div>
-              <label>Email:</label>
+            <form onSubmit={handleAuth} style={styles.form}>
+              <div style={styles.inputGroup}>
+                <label>Email:</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  style={styles.input}
+                />
+              </div>
+              <div style={styles.inputGroup}>
+                <label>Password:</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  style={styles.input}
+                />
+              </div>
+              {error && <p style={styles.error}>{error}</p>}
+              <button type="submit" style={styles.button}>
+                {isSignUp ? 'Sign Up' : 'Sign In'}
+              </button>
+            </form>
+
+            <p style={styles.toggleText}>
+              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              <button
+                onClick={() => setIsSignUp(!isSignUp)}
+                style={styles.toggleButton}
+              >
+                {isSignUp ? 'Sign In' : 'Sign Up'}
+              </button>
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 style={styles.title}>Welcome, {session.user.email}!</h2>
+
+            <div style={styles.inputGroup}>
+              <h3>Add New Item</h3>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                type="text"
+                value={newItem}
+                onChange={(e) => setNewItem(e.target.value)}
+                placeholder="Enter new item"
+                style={styles.input}
               />
+              <button onClick={handleAddItem} style={styles.button}>
+                Add Item
+              </button>
             </div>
-            <div>
-              <label>Password:</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <button type="submit">{isSignUp ? 'Sign Up' : 'Sign In'}</button>
-          </form>
 
-          {/* Toggle between Sign In and Sign Up */}
-          <p>
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-            <button onClick={() => setIsSignUp(!isSignUp)}>
-              {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
-          </p>
-        </>
-      ) : (
-        <>
-          <h2>Welcome, {session.user.email}!</h2>
-
-          {/* Add Item */}
-          <div>
-            <h3>Add New Item</h3>
-            <input
-              type="text"
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-              placeholder="Enter new item"
-            />
-            <button onClick={handleAddItem}>Add Item</button>
-          </div>
-
-          {/* Display Items */}
-          <h3>Your Items</h3>
-          <ul>
-            {items.map((item, index) => (
-              <li key={index}>
-                {isEditing === index ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editedItem}
-                      onChange={(e) => setEditedItem(e.target.value)}
-                    />
-                    <button onClick={() => handleSaveEdit(index)}>Save</button>
-                  </>
-                ) : (
-                  <>
-                    {item}
-                    <button onClick={() => handleEditItem(index)}>Edit</button>
-                    <button onClick={() => handleDeleteItem(index)}>
-                      Delete
-                    </button>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+            <h3>Your Items</h3>
+            <ul style={styles.itemList}>
+              {items.map((item, index) => (
+                <li key={index} style={styles.listItem}>
+                  {isEditing === index ? (
+                    <>
+                      <input
+                        type="text"
+                        value={editedItem}
+                        onChange={(e) => setEditedItem(e.target.value)}
+                        style={styles.input}
+                      />
+                      <button
+                        onClick={() => handleSaveEdit(index)}
+                        style={styles.button}
+                      >
+                        Save
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span>{item}</span>
+                      <div style={styles.buttonGroup}>
+                        <button
+                          onClick={() => handleEditItem(index)}
+                          style={styles.button}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteItem(index)}
+                          style={styles.deleteButton}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
     </div>
   );
 }
+
+const styles = {
+  pageWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '50vh',
+    backgroundColor: '#f7f7f7',
+  },
+  formWrapper: {
+    backgroundColor: '#fff',
+    padding: '40px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    width: '100%',
+    maxWidth: '400px',
+  },
+  title: {
+    fontSize: '2rem',
+    textAlign: 'center',
+    marginBottom: '20px',
+    color: '#0070f3',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  inputGroup: {
+    marginBottom: '16px',
+  },
+  input: {
+    width: '100%',
+    padding: '8px',
+    fontSize: '1rem',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+  },
+  button: {
+    width: '100%',
+    padding: '10px',
+    fontSize: '1rem',
+    color: '#fff',
+    backgroundColor: '#0070f3',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    marginTop: '8px',
+  },
+  deleteButton: {
+    backgroundColor: '#ff4d4d',
+    padding: '10px',
+    borderRadius: '4px',
+    marginLeft: '10px',
+  },
+  toggleText: {
+    textAlign: 'center',
+    marginTop: '20px',
+  },
+  toggleButton: {
+    marginLeft: '10px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#0070f3',
+    cursor: 'pointer',
+  },
+  error: {
+    color: 'red',
+    marginBottom: '10px',
+  },
+  itemList: {
+    listStyle: 'none',
+    padding: 0,
+  },
+  listItem: {
+    marginBottom: '10px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  buttonGroup: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+};
