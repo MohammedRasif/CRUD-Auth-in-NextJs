@@ -173,7 +173,6 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '50vh',
-    backgroundColor: '#f7f7f7',
   },
   formWrapper: {
     backgroundColor: '#fff',
